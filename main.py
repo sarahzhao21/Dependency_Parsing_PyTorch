@@ -25,10 +25,8 @@ def load_embeddings(config, emb_type='new', emb_file_name=None):
         dep_embeddings = nn.Embedding(config.dep_vocab_size,
                                       config.embedding_dim)
     elif emb_type == 'twitter':
-        # TODO
         pass
     elif emb_type == 'wiki' or emb_type == 'wikipedia':
-        # TODO
         pass
     else:
         raise Error('unknown embedding type!: "%s"' % emb_type)
@@ -52,12 +50,10 @@ def train(save_dir='saved_weights',
     load_existing_dump = False
     print('Loading dataset for training')
     dataset = load_datasets(load_existing_dump)
-    # HINT: Look in the ModelConfig class for the model's hyperparameters
     config = dataset.model_config
 
     print('Loading embeddings')
     word_embeddings, pos_embeddings, dep_embeddings = load_embeddings(config)
-    # TODO: For Task 3, add Twitter and Wikipedia embeddings (do this last)
 
     if False:
         # Switch to True if you want to print examples of feature types
@@ -88,13 +84,10 @@ def train(save_dir='saved_weights',
         os.makedirs(save_dir)
 
     # create object for loss function
-    # TODO
     loss_fn = nn.CrossEntropyLoss()
 
 
-    # create object for an optimizer that updated the weights of our parser
-    # model.  Be sure to set the learning rate based on the parameters!
-    # TODO
+    # create object for an optimizer that updated the weights of parser model.  
     optimizer = torch.optim.SGD(parser.parameters(), lr=config.lr)  
     
     loss_list = []
@@ -113,47 +106,32 @@ def train(save_dir='saved_weights',
             word_inputs_batch, pos_inputs_batch, dep_inputs_batch = train_x
 
             # Convert the numpy data to pytorch's tensor represetation.  They're
-            # numpy objects initially.  NOTE: In general, when using Pytorch,
-            # you want to send them to the device that will do th e computation
-            # (either a GPU or CPU).  You do this by saying "obj.to(device)"
-            # where we've already created the device for you (see above where we
-            # did this for the parser).  This ensures your data is running on
-            # the processor you expect it to!
-            # TODO
+            # numpy objects initially.  
             word_inputs_batch = torch.tensor(word_inputs_batch).to(device)
             pos_inputs_batch = torch.tensor(pos_inputs_batch).to(device)
             dep_inputs_batch = torch.tensor(dep_inputs_batch).to(device)
 
             # Convert the labels from 1-hot vectors to a list of which index was
-            # 1, which is what Pytorch expects.  HINT: look for the "argmax"
-            # function in numpy.
-            # TODO
+            # 1, which is what Pytorch expects.  
             labels = np.argmax(train_y, axis=1)  
 
             # Convert the label to pytorch's tensor
-            # TODO
-            labels = torch.tensor(labels)  # TODO
+            labels = torch.tensor(labels)  
 
-            # This is just a quick hack so you can cut training short to see how
-            # things are working.  In the final model, make sure to use all the data!
             if max_iters >= 0 and i > max_iters:
                 break
-
-            # Some debugging information for you
             if i == 0 and epoch == 1:
                 print("size of word inputs: ", word_inputs_batch.size())
                 print("size of pos inputs: ", pos_inputs_batch.size())
                 print("size of dep inputs: ", dep_inputs_batch.size())
                 print("size of labels: ", labels.size())
 
-            #
+          
             #### Backprop & Update weights ####
-            #
 
             # Before the backward pass, use the optimizer object to zero all of
             # the gradients for the variables
 
-            # TODO
             optimizer.zero_grad()
 
             # For the current batch of inputs, run a full forward pass through the
@@ -163,22 +141,19 @@ def train(save_dir='saved_weights',
 
             outputs = parser(word_inputs_batch, pos_inputs_batch, dep_inputs_batch) # TODO
 
-            # Compute the loss for the outputs with the labels.  Note that for
-            # your particular loss (cross-entropy) it will compute the softmax
-            # for you, so you can safely pass in the raw activations.
+            # Compute the loss for the outputs with the labels.  
 
-            loss = None  # TODO 
+            loss = None  
             loss = loss_fn(outputs, labels)
     
             # Backward pass: compute gradient of the loss with respect to model parameters
 
-            # TODO
             loss.backward()
             # Perform 1 update using the optimizer
 
-            # TODO
+
             optimizer.step()
-            # Every 10 batches, print out some reporting so we can see convergence
+            # Every 10 batches, print out some reporting so I can see convergence
             if i % print_every_iters == 0:
                 print ('Epoch: %d [%d], loss: %1.3f, acc: %1.3f' \
                        % (epoch, i, loss.item(),
@@ -201,9 +176,7 @@ def train(save_dir='saved_weights',
         parser.eval()
 
         # Compute the current model's UAS score on the validation (development)
-        # dataset.  Note that we can use this held-out data to tune the
-        # hyper-parameters of the model but we should never look at the test
-        # data until we want to report the very final result.
+        # dataset. 
         compute_dependencies(parser, device, dataset.valid_data, dataset)
         valid_UAS = get_UAS(dataset.valid_data)
         print("- validation UAS: {:.2f}".format(valid_UAS * 100.0))
